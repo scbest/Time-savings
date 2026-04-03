@@ -1,0 +1,15 @@
+{
+  "products": [
+    {
+      "name": "Example: Nike Revolution 6 Kids",
+      "url": "https://www.amazon.com/dp/EXAMPLE",
+      "target_price": 35.00,
+      "source": "amazon",
+      "sizes": ["1Y", "2Y", "3Y"]
+    }
+  ],
+  "notification": {
+    "create_issue": true
+  },
+  "check_interval_hours": 6
+}
