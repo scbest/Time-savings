@@ -9,7 +9,10 @@ This file is a living document. Claude updates it over time based on conversatio
 <!-- To be learned -->
 
 ## Recurring Themes & Interests
-<!-- To be learned -->
+- How-to content and learnings about using AI in daily personal and work life
+- Perspective of a non-technical PM who enjoys building and experimenting with tech
+- Step-by-step guides that readers can actually follow
+- Smaller learnings and solutions to things people struggle with during their own experimentation
 
 ## Vocabulary & Phrases
 <!-- Distinctive words, phrases, or patterns the user gravitates toward -->
@@ -21,7 +24,9 @@ This file is a living document. Claude updates it over time based on conversatio
 <!-- Patterns the user rejected or that fell flat -->
 
 ## Audience
-<!-- Who the user writes for, what resonates with their readers -->
+- Target audience TBD - to be refined once Substack API is connected and engagement data is available
+- Readers come for: practical ideas on how to use new technology + actionable step-by-step guides
+- Readers should also pick up smaller insights - solutions to things they've been stuck on
 
 ---
-*Last updated: not yet*
+*Last updated: 2026-04-04*
