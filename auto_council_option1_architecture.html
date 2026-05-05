@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Auto Council — How It Works</title>
+<style>
+  :root {
+    --bg: #0a0a10;
+    --panel: #14141c;
+    --panel-2: #1b1b26;
+    --ink: #f4f4f6;
+    --muted: #9da0ac;
+    --accent: #a78bfa;
+    --accent-2: #7c5cff;
+    --green: #6ee7b7;
+    --red: #fb7185;
+    --hairline: #2a2a36;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #000; color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+  .stage {
+    width: 1080px; height: 1080px; margin: 24px auto; padding: 56px;
+    background:
+      radial-gradient(900px 600px at 0% 0%, rgba(167,139,250,0.18), transparent 60%),
+      radial-gradient(900px 600px at 100% 100%, rgba(124,92,255,0.14), transparent 60%),
+      linear-gradient(180deg, #0a0a10 0%, #08080d 100%);
+    border-radius: 28px; position: relative; overflow: hidden;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+  }
+  .stage::before {
+    content: ""; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse at center, black 50%, transparent 95%);
+    pointer-events: none;
+  }
+  .header { display:flex; align-items:flex-start; justify-content:space-between; gap: 16px; }
+  .eyebrow { text-transform: uppercase; letter-spacing: 0.2em; font-size: 13px; color: var(--accent); font-weight: 700; }
+  h1 { margin: 8px 0 0; font-size: 60px; line-height: 1.02; letter-spacing: -0.02em; font-weight: 800; }
+  h1 .accent { color: var(--accent); }
+  .sub { color: var(--muted); font-size: 19px; max-width: 760px; line-height: 1.45; margin-top: 12px; }
+  .badge { padding: 10px 14px; border: 1px solid var(--hairline); border-radius: 999px; font-size: 13px; color: var(--muted); white-space: nowrap; }
+
+  .flow {
+    margin-top: 40px;
+    display: grid;
+    grid-template-columns: 220px 1fr 220px;
+    align-items: center;
+    gap: 28px;
+  }
+  .pill {
+    background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
+    border: 1px solid var(--hairline);
+    border-radius: 18px;
+    padding: 22px 18px;
+    text-align: center;
+    position: relative;
+  }
+  .pill .label { font-size: 12px; letter-spacing: 0.18em; color: var(--muted); text-transform: uppercase; font-weight: 600; }
+  .pill .name { font-size: 22px; font-weight: 800; margin-top: 6px; }
+  .pill .meta { color: var(--muted); font-size: 13px; margin-top: 6px; }
+
+  .council {
+    background: linear-gradient(180deg, rgba(167,139,250,0.08), rgba(124,92,255,0.05));
+    border: 1px solid rgba(167,139,250,0.30);
+    border-radius: 22px;
+    padding: 22px 18px 18px;
+    text-align: center;
+  }
+  .council .title { font-size: 16px; letter-spacing: 0.16em; color: var(--accent); text-transform: uppercase; font-weight: 700; }
+  .judges { display: flex; justify-content: space-between; gap: 10px; margin-top: 14px; }
+  .judge {
+    flex: 1;
+    background: #14141c;
+    border: 1px solid var(--hairline);
+    border-radius: 14px;
+    padding: 14px 8px 12px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .judge .j { width: 36px; height: 36px; border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #c7b6ff, var(--accent-2) 70%);
+    color: #0a0a10; display:flex; align-items:center; justify-content:center;
+    font-weight: 800; margin: 0 auto 8px; font-size: 14px; }
+  .judge .name { color: var(--ink); font-weight: 700; font-size: 13px; letter-spacing: 0.02em; }
+
+  .arrow {
+    position: relative; height: 2px; background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  }
+  .axes {
+    margin-top: 28px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+  }
+  .axis {
+    background: #14141c; border: 1px solid var(--hairline); border-radius: 14px;
+    padding: 16px 12px; text-align: center;
+  }
+  .axis .ic { font-size: 22px; }
+  .axis .t { font-weight: 800; margin-top: 6px; font-size: 16px; letter-spacing: -0.005em; }
+  .axis .d { color: var(--muted); font-size: 12px; margin-top: 4px; line-height: 1.35; }
+
+  .verdict {
+    margin-top: 28px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .v {
+    border-radius: 18px;
+    padding: 18px 22px;
+    border: 1px solid var(--hairline);
+    background: #14141c;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .v .dot { width: 14px; height: 14px; border-radius: 50%; }
+  .v.pass .dot { background: var(--green); box-shadow: 0 0 16px rgba(110,231,183,0.6); }
+  .v.fail .dot { background: var(--red); box-shadow: 0 0 16px rgba(251,113,133,0.6); }
+  .v .vt { font-weight: 800; font-size: 18px; }
+  .v .vd { color: var(--muted); font-size: 13px; }
+
+  .footer {
+    position: absolute; left: 56px; right: 56px; bottom: 40px;
+    display: flex; justify-content: space-between; align-items: center;
+    color: var(--muted); font-size: 14px;
+  }
+  .footer b { color: var(--ink); }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="header">
+      <div>
+        <div class="eyebrow">Runtime Guardrail · Auto Council</div>
+        <h1>5 LLMs review the draft <span class="accent">before you do.</span></h1>
+        <div class="sub">A lightweight review pass between the agent's draft and the answer you actually act on.</div>
+      </div>
+      <div class="badge">save · share · subscribe</div>
+    </div>
+
+    <div class="flow">
+      <div class="pill">
+        <div class="label">Step 1</div>
+        <div class="name">Agent Draft</div>
+        <div class="meta">your agent's first answer</div>
+      </div>
+
+      <div class="council">
+        <div class="title">Auto Council</div>
+        <div class="judges">
+          <div class="judge"><div class="j">A</div><div class="name">Accuracy</div></div>
+          <div class="judge"><div class="j">R</div><div class="name">Risk</div></div>
+          <div class="judge"><div class="j">X</div><div class="name">Actionable</div></div>
+          <div class="judge"><div class="j">C</div><div class="name">Clarity</div></div>
+          <div class="judge"><div class="j">F</div><div class="name">Fit</div></div>
+        </div>
+      </div>
+
+      <div class="pill">
+        <div class="label">Step 3</div>
+        <div class="name">You</div>
+        <div class="meta">act with confidence</div>
+      </div>
+    </div>
+
+    <div class="axes">
+      <div class="axis"><div class="ic">🎯</div><div class="t">Accuracy</div><div class="d">Are the facts right?</div></div>
+      <div class="axis"><div class="ic">⚠️</div><div class="t">Risk</div><div class="d">What could go wrong?</div></div>
+      <div class="axis"><div class="ic">⚡</div><div class="t">Actionability</div><div class="d">Can you actually use it?</div></div>
+      <div class="axis"><div class="ic">🔍</div><div class="t">Clarity</div><div class="d">Is it understandable?</div></div>
+      <div class="axis"><div class="ic">🧩</div><div class="t">Fit</div><div class="d">Does it match the ask?</div></div>
+    </div>
+
+    <div class="verdict">
+      <div class="v pass">
+        <div class="dot"></div>
+        <div>
+          <div class="vt">Pass → ship to you</div>
+          <div class="vd">Council agrees the draft holds up.</div>
+        </div>
+      </div>
+      <div class="v fail">
+        <div class="dot"></div>
+        <div>
+          <div class="vt">Fail → loop & revise</div>
+          <div class="vd">Flag the weak axes, retry the draft.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div>Built inside <b>OpenClaw</b> · workflow drops soon</div>
+      <div>Subscribe for the full setup →</div>
+    </div>
+  </div>
+</body>
+</html>

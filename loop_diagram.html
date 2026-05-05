@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>The 4-Part AI Loop</title>
+<style>
+  :root {
+    --bg: #0b0b10;
+    --panel: #14141c;
+    --panel-2: #1b1b26;
+    --ink: #f4f4f6;
+    --muted: #a4a4b0;
+    --accent: #a78bfa;   /* purple, matches the Substack screenshot */
+    --accent-2: #7c5cff;
+    --hairline: #2a2a36;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #000;
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+  .stage {
+    width: 1080px;
+    height: 1080px;
+    margin: 24px auto;
+    background:
+      radial-gradient(1200px 800px at 0% 0%, rgba(167,139,250,0.18), transparent 60%),
+      radial-gradient(1000px 700px at 100% 100%, rgba(124,92,255,0.15), transparent 60%),
+      linear-gradient(180deg, #0b0b10 0%, #0a0a0f 100%);
+    border-radius: 28px;
+    padding: 56px 56px 48px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+  }
+  .stage::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    mask-image: radial-gradient(ellipse at center, black 50%, transparent 95%);
+  }
+  .header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    position: relative;
+  }
+  .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 14px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  h1 {
+    font-size: 64px;
+    line-height: 1.02;
+    margin: 10px 0 0;
+    letter-spacing: -0.02em;
+    font-weight: 800;
+  }
+  h1 .accent { color: var(--accent); }
+  .subtitle {
+    margin-top: 14px;
+    color: var(--muted);
+    font-size: 20px;
+    max-width: 760px;
+    line-height: 1.45;
+  }
+  .badge {
+    align-self: flex-start;
+    padding: 10px 14px;
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+    font-size: 13px;
+    color: var(--muted);
+    background: rgba(255,255,255,0.02);
+    white-space: nowrap;
+  }
+  .grid {
+    margin-top: 44px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 22px;
+    height: 720px;
+    position: relative;
+  }
+  .cell {
+    background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
+    border: 1px solid var(--hairline);
+    border-radius: 22px;
+    padding: 30px 32px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+  }
+  .cell::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 22px;
+    pointer-events: none;
+    background: radial-gradient(400px 200px at 100% 0%, rgba(167,139,250,0.10), transparent 60%);
+  }
+  .num {
+    font-size: 18px;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  .title {
+    font-size: 38px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    margin-top: 6px;
+  }
+  .tag {
+    display: inline-block;
+    margin-top: 8px;
+    color: var(--accent);
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .desc {
+    color: var(--muted);
+    font-size: 17px;
+    line-height: 1.5;
+    margin-top: 18px;
+  }
+  .desc b { color: var(--ink); font-weight: 600; }
+  .icon {
+    position: absolute;
+    top: 26px;
+    right: 26px;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: rgba(167,139,250,0.12);
+    border: 1px solid rgba(167,139,250,0.35);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--accent);
+  }
+
+  /* center node */
+  .hub {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #c7b6ff, var(--accent-2) 70%);
+    box-shadow: 0 0 0 8px rgba(167,139,250,0.10), 0 0 0 16px rgba(167,139,250,0.05);
+    display: flex; align-items: center; justify-content: center;
+    color: #0b0b10;
+    font-weight: 800;
+    font-size: 14px;
+    text-align: center;
+    line-height: 1.1;
+    letter-spacing: 0.02em;
+    z-index: 2;
+  }
+
+  .footer {
+    margin-top: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--muted);
+    font-size: 16px;
+  }
+  .footer b { color: var(--ink); font-weight: 600; }
+  .formula {
+    color: var(--ink);
+    font-weight: 700;
+    letter-spacing: -0.005em;
+  }
+  .formula .plus { color: var(--accent); margin: 0 6px; }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="header">
+      <div>
+        <div class="eyebrow">A Personal AI OS</div>
+        <h1>The <span class="accent">4-Part</span> AI Loop</h1>
+        <div class="subtitle">Most AI hacks are just <b style="color:#fff">Job + prompt</b>. No trigger, no context, no boundary &mdash; that's why the workflow never sticks.</div>
+      </div>
+      <div class="badge">save &middot; reference &middot; share</div>
+    </div>
+
+    <div class="grid">
+      <div class="cell">
+        <div class="icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg>
+        </div>
+        <div>
+          <div class="num">01</div>
+          <div class="title">Job</div>
+          <div class="tag">what you want done</div>
+        </div>
+        <div class="desc">The task itself. <b>"Draft this."</b> <b>"Summarize that."</b> <b>"Prep my brief."</b></div>
+      </div>
+
+      <div class="cell">
+        <div class="icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        </div>
+        <div>
+          <div class="num">02</div>
+          <div class="title">Trigger</div>
+          <div class="tag">when it runs</div>
+        </div>
+        <div class="desc">The schedule or signal. <b>"Every weekday at 7pm."</b> <b>"When a new email lands."</b></div>
+      </div>
+
+      <div class="cell">
+        <div class="icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+        </div>
+        <div>
+          <div class="num">03</div>
+          <div class="title">Context</div>
+          <div class="tag">what it can see</div>
+        </div>
+        <div class="desc">Calendar, email, notes, tasks, messages, docs, analytics &mdash; whatever makes the job smarter.</div>
+      </div>
+
+      <div class="cell">
+        <div class="icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/></svg>
+        </div>
+        <div>
+          <div class="num">04</div>
+          <div class="title">Boundary</div>
+          <div class="tag">what it can't do without you</div>
+        </div>
+        <div class="desc">The guardrails. <b>"Don't send or change anything without me."</b></div>
+      </div>
+
+      <div class="hub">A REAL<br/>AI LOOP</div>
+    </div>
+
+    <div class="footer">
+      <div class="formula">Job <span class="plus">+</span> Trigger <span class="plus">+</span> Context <span class="plus">+</span> Boundary</div>
+      <div>= a loop you actually trust</div>
+    </div>
+  </div>
+</body>
+</html>
