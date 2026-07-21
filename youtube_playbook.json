@@ -1,0 +1,124 @@
+{
+  "meta": {
+    "last_updated": "2026-07-21",
+    "refresh_interval_days": 30,
+    "next_refresh_due": "2026-08-20",
+    "version": 1,
+    "note": "This file is the living brain of the generator. The refresh job rewrites it periodically so titles, hooks, and structure track whatever YouTube is currently rewarding. Bump 'version' and append to 'changelog' on every refresh.",
+    "sources": [
+      "https://vidiq.com/blog/post/understanding-youtube-algorithm/",
+      "https://johnisaacson.co.uk/how-youtube-algorithm-works-2026/",
+      "https://outlierkit.com/resources/youtube-algorithm-updates/",
+      "https://humbleandbrag.com/blog/youtube-ctr-benchmarks",
+      "https://vidiq.com/blog/post/youtube-thumbnail-design-tips/",
+      "https://www.pictiny.dev/blog/thumbnail-best-practices"
+    ]
+  },
+
+  "algorithm_signals": {
+    "primary_equation": "recommendations ~= watch_time x viewer_satisfaction (session contribution)",
+    "optimize_for_in_order": [
+      "quality_ctr: earn the click AND keep the first 30s (a high-CTR / low-early-retention video is now actively demoted)",
+      "first_15s_retention: strongest lever on whether the video gets pushed wider",
+      "average_percentage_viewed: aim 50-60%+ of total length; below 40% gets deprioritized",
+      "viewer_satisfaction: survey signals and returning viewers now weigh more than raw watch time",
+      "session_continuation: end screens/playlists/series that send viewers into a NEXT video out-perform single-shot videos with identical retention"
+    ],
+    "confirmed_changes_2026": [
+      "Feb 2026 Browse feed overhaul: personalization shifted from broad topic categories to per-viewer watch-history clusters. Implication: niche consistency compounds; make videos for a specific viewer cluster, not a broad topic.",
+      "Shorts and long-form algorithms are now formally separated. Implication: a weak Short no longer drags down long-form reach, so you can safely use Shorts as top-of-funnel ads for long-form.",
+      "Satisfaction surveys weigh more than raw watch time. Implication: deliver on the title's promise fast; bait-y packaging that underdelivers is punished harder than before."
+    ]
+  },
+
+  "benchmarks": {
+    "ctr_percent": { "weak": 3, "ok": 5, "good": 7, "great": 10, "note": "Browse/Suggested CTR. New channels skew lower; judge against your own channel trend, not a global number." },
+    "avg_percentage_viewed": { "floor": 40, "target": 55, "strong": 65, "note": "Below 40% = deprioritized regardless of CTR." },
+    "first_30s_retention_percent": { "floor": 70, "target": 85, "note": "The single most-watched, most-diagnostic part of the video." },
+    "ideal_length_minutes": { "min": 6, "sweet_spot": 10, "note": "6-10 min counts as long-form and is the lowest-effort durable format. A tight 7 beats a padded 20." }
+  },
+
+  "title": {
+    "ideal_char_range": [40, 60],
+    "hard_truncation_chars": 60,
+    "front_load_keyword": true,
+    "formulas": [
+      { "name": "curiosity_gap", "template": "Why {surprising_claim}", "example": "Why My First Video Beat My 50th", "why": "Opens a loop the thumbnail can't close by itself." },
+      { "name": "number_listicle", "template": "{N} {things} That {payoff}", "example": "7 Editing Tricks That Doubled My Retention", "why": "Specific, scannable, promises a defined payoff." },
+      { "name": "how_to_outcome", "template": "How to {desirable_outcome} (Without {common_pain})", "example": "How to Grow on YouTube (Without Showing Your Face)", "why": "States outcome + removes the #1 objection." },
+      { "name": "mistake_warning", "template": "The {topic} Mistake That's {negative_consequence}", "example": "The Upload Mistake That's Killing Your Reach", "why": "Loss aversion; implies the viewer may be doing it wrong." },
+      { "name": "i_tried_result", "template": "I Tried {thing} for {timeframe} - Here's What Happened", "example": "I Posted Daily for 30 Days - Here's What Happened", "why": "First-person stakes + an implied surprising result." },
+      { "name": "contrarian", "template": "Stop {common_advice}. Do This Instead.", "example": "Stop Scripting Your Videos. Do This Instead.", "why": "Pattern-interrupt against accepted wisdom." }
+    ],
+    "power_words": ["without", "actually", "nobody", "why", "stop", "before", "fast", "secret", "mistake", "truth", "finally", "proven", "instantly", "worst", "best"],
+    "avoid": ["ALL CAPS titles", "clickbait you don't pay off in the first 30s", "vague nouns with no promise", "repeating the thumbnail text word-for-word", "trailing keyword stuffing"],
+    "scoring": {
+      "base_score": 50,
+      "ideal_char_range": [40, 60],
+      "too_long_penalty_per_char_over": 1.5,
+      "too_short_penalty_per_char_under": 1.0,
+      "in_range_bonus": 8,
+      "has_number_bonus": 12,
+      "has_power_word_bonus": 8,
+      "curiosity_gap_bonus": 10,
+      "all_caps_penalty": 20,
+      "keyword_front_loaded_bonus": 8,
+      "max_score": 100
+    }
+  },
+
+  "thumbnail": {
+    "spec": "1280x720, 16:9, under 2MB",
+    "text_word_max": 4,
+    "must_have": [
+      "One clear focal point readable at phone thumbnail size",
+      "High contrast (a subject that pops off the background)",
+      "A human face with a legible emotion when it fits the niche (69% of breakout videos use a face; 80% of the biggest overperformers)",
+      "3 words or fewer of large bold sans-serif text (sub-4-word thumbnails get ~30% higher CTR)"
+    ],
+    "principles": [
+      "Thumbnail and title are ONE unit: the thumbnail opens a curiosity gap, the title gives it context. Never say the same thing twice.",
+      "Design for a 3-inch phone screen first, then check it on desktop.",
+      "Use a repeatable style (consistent color/font/layout) so returning viewers recognize you at a glance."
+    ]
+  },
+
+  "hook": {
+    "first_seconds": 15,
+    "principles": [
+      "Pay off the title's promise (or prove you will) within the first 15 seconds.",
+      "No long intros, no 'hey guys welcome back', no logo sting before value.",
+      "Restate the stakes: what the viewer gets and why it matters to them specifically.",
+      "Create an open loop you resolve later ('but the third one is the reason most people quit')."
+    ],
+    "patterns": [
+      { "name": "promise_proof", "template": "By the end of this you'll {specific_outcome}. Here's the proof:", "example": "By the end of this you'll write a title in under 2 minutes. Here's one I just did:" },
+      { "name": "contradiction", "template": "Everyone tells you {common_advice}. That's exactly why {bad_outcome}.", "example": "Everyone tells you to post daily. That's exactly why most channels burn out." },
+      { "name": "cold_open_result", "template": "Show the end result / payoff first, then rewind: 'Let me show you how I got here.'", "example": "This video got 400k views. It took me 40 minutes to make. Here's the exact process." },
+      { "name": "cost_of_ignoring", "template": "If you {do_common_thing}, you're losing {specific_thing}. Here's the fix.", "example": "If you script word-for-word, you're losing your first 15 seconds. Here's the fix." }
+    ]
+  },
+
+  "retention_structure": {
+    "note": "A repeatable skeleton for a 6-10 min video. Each segment lists its job and a retention tactic. Hit a fresh hook/open-loop roughly every 40-60 seconds.",
+    "segments": [
+      { "name": "Hook", "seconds": "0-15", "job": "Earn the next 30 seconds. Pay off the title, set the stakes, open a loop.", "tactic": "Cold-open with the result or the contradiction. No intro." },
+      { "name": "Promise / Roadmap", "seconds": "15-40", "job": "Tell them exactly what they'll get and why it's worth staying.", "tactic": "One sentence roadmap, then immediately deliver the first bit of value so it's not empty setup." },
+      { "name": "Value Beat 1", "seconds": "40-150", "job": "Deliver the first concrete, standalone-useful point.", "tactic": "Show don't tell: example, screen, or demo. Close a loop, open the next one." },
+      { "name": "Value Beat 2", "seconds": "150-300", "job": "Second point, escalating in usefulness.", "tactic": "Pattern interrupt: change visual, location, or pace to reset attention." },
+      { "name": "Value Beat 3 / Payoff", "seconds": "300-450", "job": "The best point last, or the payoff of the earliest open loop.", "tactic": "Callback to the hook's open loop; deliver the promised surprise." },
+      { "name": "Continuation CTA", "seconds": "450-end", "job": "Send them to the NEXT video, not just 'like and subscribe'.", "tactic": "End screen pointing to one specific next video that continues the journey (session contribution beats a single view)." }
+    ],
+    "tactics": [
+      "Open loops early, close them late.",
+      "Cut every sentence that doesn't advance the payoff (satisfaction > watch time now).",
+      "Re-hook every 40-60s with a mini cliffhanger or pattern interrupt.",
+      "Front-load the most valuable point if retention data shows an early drop; back-load it if viewers stay.",
+      "Use on-screen text/visual change on scene transitions to reset attention."
+    ]
+  },
+
+  "changelog": [
+    { "date": "2026-07-21", "version": 1, "change": "Initial playbook. Grounded in 2026 signals: quality-CTR demotion, first-15s retention primacy, satisfaction > raw watch time, Feb 2026 Browse cluster overhaul, Shorts/long-form separation, sub-4-word face-forward thumbnails." }
+  ]
+}
