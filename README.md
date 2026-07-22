@@ -63,6 +63,14 @@ There are two LLM backends:
 | Retention outline | A segment-by-segment 6–10 min skeleton with the job and tactic for each beat. |
 | Optimize-for + benchmarks | The current ranking signals and the CTR/retention numbers to judge yourself against. |
 
+## Run it without the terminal (Claude Code skill)
+
+There's a Claude Code skill at `.claude/skills/youtube-brief/`. In Claude Code
+desktop with this repo open, just type `/youtube-brief <topic>` (or ask for a
+video brief in chat) and Claude runs the generator and writes the copy for you —
+no terminal commands, no API key. Because the Claude Code session already runs on
+your Claude subscription, the LLM-quality copy is produced on your subscription too.
+
 ## Staying current
 
 `youtube_playbook.json` carries a `last_updated` date. The generator **warns you when
