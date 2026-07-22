@@ -9,6 +9,11 @@ Usage:
     python video_generator.py "how to start a youtube channel"
     python video_generator.py "beginner sourdough" --audience "busy parents" --count 6
     python video_generator.py "my topic" --json        # machine-readable output
+    python video_generator.py "my topic" --llm         # original copy via your Claude subscription
+
+The default engine is offline templates (no key, instant). --llm hands the topic
+plus the current playbook to a Claude model for original copy; by default it uses
+the `claude` CLI, which runs on your Claude Pro/Max subscription (no API key).
 """
 
 import argparse
@@ -343,6 +348,206 @@ def build_brief(topic, playbook, audience=None, count=6):
     }
 
 
+# ---------------------------------------------------------------------------
+# LLM mode
+#
+# Optional: instead of the template engine, hand the topic + the current
+# playbook to a Claude model and let it write original titles/hooks/outline.
+# Two backends:
+#   - "cli": shells out to the `claude` CLI (Claude Code). This runs on your
+#     Claude Pro/Max SUBSCRIPTION when you're logged in (`claude` then /login) --
+#     no API key, no per-token cost. This is the "use my subscription" path.
+#   - "api": calls the Anthropic API with ANTHROPIC_API_KEY (pay-per-token).
+# The playbook is passed as context either way, so LLM output stays current.
+# ---------------------------------------------------------------------------
+
+import os
+import shutil
+import subprocess
+import urllib.request
+import urllib.error
+
+
+def llm_context(playbook):
+    """Condense the playbook into guidance the model should follow."""
+    al = playbook["algorithm_signals"]
+    b = playbook["benchmarks"]
+    tb = playbook["thumbnail"]
+    parts = [
+        "CURRENT YOUTUBE ALGORITHM GUIDANCE (follow this, it is refreshed periodically):",
+        f"- Ranking equation: {al['primary_equation']}",
+        "- Optimize for, in order: " + "; ".join(al["optimize_for_in_order"]),
+        "- Confirmed recent changes: " + " ".join(al["confirmed_changes_2026"]),
+        "- Title rules: ideal length "
+        f"{playbook['title']['ideal_char_range'][0]}-{playbook['title']['ideal_char_range'][1]} chars, "
+        f"truncates ~{playbook['title']['hard_truncation_chars']}; front-load the keyword; "
+        "open a curiosity gap; do not repeat the thumbnail text.",
+        "- Title formulas that work now: "
+        + "; ".join(f"{f['name']} ({f['template']})" for f in playbook["title"]["formulas"]),
+        f"- Thumbnail rules: {tb['spec']}, max {tb['text_word_max']} words of text; "
+        + " ".join(tb["must_have"]),
+        f"- Hook: pay off the title within {playbook['hook']['first_seconds']}s; "
+        + " ".join(playbook["hook"]["principles"]),
+        "- Retention: hit a fresh hook/open-loop every 40-60s; "
+        + " ".join(playbook["retention_structure"]["tactics"]),
+        f"- Benchmarks: CTR good~{b['ctr_percent']['good']}%, avg-viewed target {b['avg_percentage_viewed']['target']}%, "
+        f"first-30s retention target {b['first_30s_retention_percent']['target']}%, "
+        f"length {b['ideal_length_minutes']['min']}-{b['ideal_length_minutes']['sweet_spot']} min.",
+    ]
+    return "\n".join(parts)
+
+
+def build_llm_prompt(topic, playbook, audience, count):
+    audience_line = f"\nTarget audience: {audience}" if audience else ""
+    schema = (
+        '{\n'
+        '  "titles": [{"title": str, "formula": str, "why": str}],  // exactly %d, best first\n'
+        '  "thumbnail": {"concept": str, "text": str, "why": str},\n'
+        '  "hooks": [{"style": str, "line": str}],  // 4 options, spoken first 15 seconds\n'
+        '  "outline": [{"segment": str, "seconds": str, "goal": str, "note": str}]  // 6-10 min\n'
+        '}'
+    ) % count
+    return (
+        f"{llm_context(playbook)}\n\n"
+        f"TASK: Create a YouTube long-form video packaging brief for this topic:\n"
+        f"\"{topic}\"{audience_line}\n\n"
+        f"Write original, specific, grammatical titles and hooks tailored to the topic -- "
+        f"do not use placeholder text. Apply the guidance above. Return ONLY a JSON object, "
+        f"no markdown fences, matching exactly this shape:\n{schema}"
+    )
+
+
+def _extract_json(text):
+    """Pull the first well-formed JSON object out of a model's text response."""
+    start = text.find("{")
+    end = text.rfind("}")
+    if start == -1 or end == -1 or end < start:
+        raise ValueError("no JSON object found in model output")
+    return json.loads(text[start:end + 1])
+
+
+def call_claude_cli(prompt, model=None, timeout=240):
+    """Run the prompt through the `claude` CLI -> uses your Claude subscription."""
+    if not shutil.which("claude"):
+        raise RuntimeError(
+            "the `claude` CLI is not on your PATH. Install Claude Code and run "
+            "`claude` then /login with your Pro/Max account to use your subscription."
+        )
+    cmd = ["claude", "-p", prompt, "--output-format", "json"]
+    if model:
+        cmd += ["--model", model]
+    try:
+        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+    except subprocess.TimeoutExpired:
+        raise RuntimeError(f"`claude` CLI timed out after {timeout}s (try --llm-timeout)")
+    if proc.returncode != 0:
+        raise RuntimeError(f"`claude` CLI failed: {proc.stderr.strip() or proc.stdout.strip()}")
+    envelope = json.loads(proc.stdout)
+    if envelope.get("is_error"):
+        raise RuntimeError(f"`claude` CLI returned an error: {envelope.get('result')}")
+    return _extract_json(envelope["result"])
+
+
+def call_anthropic_api(prompt, model="claude-sonnet-5", timeout=120):
+    """Call the Anthropic API with ANTHROPIC_API_KEY (pay-per-token, not the subscription)."""
+    key = os.environ.get("ANTHROPIC_API_KEY")
+    if not key:
+        raise RuntimeError("ANTHROPIC_API_KEY is not set (needed for the 'api' backend).")
+    body = json.dumps({
+        "model": model,
+        "max_tokens": 2000,
+        "messages": [{"role": "user", "content": prompt}],
+    }).encode()
+    req = urllib.request.Request(
+        "https://api.anthropic.com/v1/messages",
+        data=body,
+        headers={
+            "x-api-key": key,
+            "anthropic-version": "2023-06-01",
+            "content-type": "application/json",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            data = json.loads(resp.read())
+    except urllib.error.HTTPError as e:
+        raise RuntimeError(f"Anthropic API error {e.code}: {e.read().decode(errors='replace')[:300]}")
+    text = "".join(b.get("text", "") for b in data.get("content", []) if b.get("type") == "text")
+    return _extract_json(text)
+
+
+def generate_with_llm(topic, playbook, audience, count, backend, model, timeout):
+    """Return (brief_dict, backend_used)."""
+    prompt = build_llm_prompt(topic, playbook, audience, count)
+    order = {"auto": ["cli", "api"], "cli": ["cli"], "api": ["api"]}[backend]
+    errors = []
+    for b in order:
+        try:
+            if b == "cli":
+                return call_claude_cli(prompt, model, timeout), "cli (your Claude subscription)"
+            return call_anthropic_api(prompt, model or "claude-sonnet-5", timeout), "api (ANTHROPIC_API_KEY)"
+        except Exception as e:  # try the next backend in auto mode
+            errors.append(f"{b}: {e}")
+    raise RuntimeError("LLM generation failed.\n  " + "\n  ".join(errors))
+
+
+def render_llm(topic, playbook, brief, backend, audience):
+    """Render an LLM-generated brief, keeping the playbook's benchmarks/signals."""
+    P = playbook
+    _, stale, fresh_msg = playbook_freshness(P)
+    lines = []
+    w = lines.append
+    w("=" * 68)
+    w(f"  VIDEO BRIEF (LLM):  {topic}")
+    if audience:
+        w(f"  Audience:           {audience}")
+    w(f"  Generated by:       {backend}")
+    w(f"  {fresh_msg}")
+    w("=" * 68)
+
+    w("\n## TITLE CANDIDATES\n")
+    for i, t in enumerate(brief.get("titles", []), 1):
+        w(f"{i}. {t.get('title','')}")
+        meta = " | ".join(x for x in [t.get("formula"), t.get("why")] if x)
+        if meta:
+            w(f"        {meta}")
+
+    tn = brief.get("thumbnail", {})
+    if tn:
+        w("\n## THUMBNAIL\n")
+        w(f"   Concept: {tn.get('concept','')}")
+        if tn.get("text"):
+            w(f"   On-image text: {tn['text']}")
+        if tn.get("why"):
+            w(f"   Why: {tn['why']}")
+
+    w(f"\n## HOOK (first {P['hook']['first_seconds']}s) - pick one\n")
+    for h in brief.get("hooks", []):
+        w(f"   [{h.get('style','')}]")
+        w(f"     \"{h.get('line','')}\"")
+
+    w("\n## RETENTION-OPTIMIZED OUTLINE\n")
+    for seg in brief.get("outline", []):
+        w(f"   {seg.get('seconds',''):>9}  {seg.get('segment','')}")
+        if seg.get("goal"):
+            w(f"              goal: {seg['goal']}")
+        if seg.get("note"):
+            w(f"              note: {seg['note']}")
+
+    b = P["benchmarks"]
+    w("\n## BENCHMARKS TO CHECK YOURSELF AGAINST\n")
+    w(f"   CTR good {b['ctr_percent']['good']}% | avg-viewed target {b['avg_percentage_viewed']['target']}% "
+      f"| first-30s retention target {b['first_30s_retention_percent']['target']}% "
+      f"| length {b['ideal_length_minutes']['min']}-{b['ideal_length_minutes']['sweet_spot']} min")
+
+    if stale:
+        w("\n" + "!" * 68)
+        w("  " + fresh_msg)
+        w("!" * 68)
+    return "\n".join(lines)
+
+
 def main():
     ap = argparse.ArgumentParser(
         description="Generate an algorithm-optimized YouTube video brief from a topic."
@@ -351,9 +556,30 @@ def main():
     ap.add_argument("--audience", help="Who it's for, e.g. 'busy parents'", default=None)
     ap.add_argument("--count", type=int, default=6, help="How many title candidates to show")
     ap.add_argument("--json", action="store_true", help="Output machine-readable JSON")
+    ap.add_argument("--llm", action="store_true",
+                    help="Use a Claude model to write original copy instead of templates")
+    ap.add_argument("--llm-backend", choices=["auto", "cli", "api"], default="auto",
+                    help="cli = your Claude subscription via the `claude` CLI (no API key); "
+                         "api = ANTHROPIC_API_KEY (pay-per-token); auto tries cli then api")
+    ap.add_argument("--model", default=None, help="Model to use in LLM mode (optional)")
+    ap.add_argument("--llm-timeout", type=int, default=240, help="Seconds to wait for the LLM")
     args = ap.parse_args()
 
     playbook = load_playbook()
+
+    if args.llm:
+        try:
+            brief, backend = generate_with_llm(
+                args.topic, playbook, args.audience, args.count,
+                args.llm_backend, args.model, args.llm_timeout,
+            )
+        except RuntimeError as e:
+            sys.exit(f"LLM mode failed -- {e}\n(Drop --llm to use the offline template engine.)")
+        if args.json:
+            print(json.dumps({"topic": args.topic, "backend": backend, **brief}, indent=2))
+        else:
+            print(render_llm(args.topic, playbook, brief, backend, args.audience))
+        return
 
     if args.json:
         brief = build_brief(args.topic, playbook, args.audience, args.count)

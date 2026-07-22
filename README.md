@@ -24,6 +24,7 @@ tracks the algorithm instead of going stale.
 python3 video_generator.py "how to start a youtube channel"
 python3 video_generator.py "beginner sourdough bread" --audience "busy parents" --count 6
 python3 video_generator.py "home espresso setup" --json   # machine-readable
+python3 video_generator.py "editing faster in davinci" --llm   # original copy via your Claude subscription
 ```
 
 Flags:
@@ -31,6 +32,26 @@ Flags:
 - `--audience "..."` — who the video is for; tunes a few phrasings.
 - `--count N` — how many title candidates to show (default 6).
 - `--json` — emit the full brief as JSON instead of the formatted view.
+- `--llm` — write original copy with a Claude model instead of templates (see below).
+- `--llm-backend {auto,cli,api}` — which model backend to use (default `auto`).
+- `--model NAME` / `--llm-timeout SECONDS` — optional LLM tuning.
+
+## Two engines: templates vs. LLM
+
+By default the generator is an **offline template engine** — no key, instant, free, deterministic. It fills current title/hook/outline formulas with your topic and scores them. Great for killing the blank page.
+
+Add `--llm` to instead have a **Claude model write original copy** (non-formulaic titles, real hook scripts, a fleshed-out outline). Either way the current `youtube_playbook.json` is passed as context, so the LLM's output tracks the algorithm too.
+
+There are two LLM backends:
+
+| Backend | How it authenticates | Cost |
+|---------|----------------------|------|
+| `cli` (default) | Shells out to the `claude` CLI (Claude Code), which runs on your **Claude Pro/Max subscription** | Counts against your subscription — no API key, no per-token bill |
+| `api` | Calls the Anthropic API with `ANTHROPIC_API_KEY` | Pay-per-token |
+
+`--llm-backend auto` (the default) tries the `claude` CLI first, then falls back to the API key. **To use your subscription:** install [Claude Code](https://claude.com/claude-code), run `claude` and `/login` with your Pro/Max account, then just use `--llm`. The Anthropic API and your Claude subscription are separate billing systems — an API key is *not* your subscription, which is why the CLI path exists.
+
+> Note: the automated monthly playbook refresh already runs inside your Claude account, so that piece uses your subscription too. The `api` backend is only needed if you want LLM generation on a machine without the `claude` CLI (e.g. unattended CI).
 
 ## What you get
 
