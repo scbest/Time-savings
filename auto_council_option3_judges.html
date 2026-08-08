@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Auto Council — Meet The Judges</title>
+<style>
+  :root {
+    --bg: #0a0a10;
+    --ink: #f4f4f6;
+    --muted: #a4a4b0;
+    --accent: #a78bfa;
+    --accent-2: #7c5cff;
+    --gold: #f5c95c;
+    --hairline: #2a2a36;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #000; color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+  .stage {
+    width: 1080px; height: 1080px; margin: 24px auto; padding: 56px 56px 48px;
+    background:
+      radial-gradient(900px 600px at 50% -10%, rgba(167,139,250,0.22), transparent 60%),
+      linear-gradient(180deg, #0a0a10 0%, #07070c 100%);
+    border-radius: 28px; position: relative; overflow: hidden;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+  }
+  .stage::before {
+    content: ""; position: absolute; inset: 0;
+    background-image:
+      radial-gradient(circle at 20% 80%, rgba(167,139,250,0.10), transparent 40%),
+      radial-gradient(circle at 80% 30%, rgba(245,201,92,0.08), transparent 40%);
+    pointer-events: none;
+  }
+
+  .header { text-align: center; position: relative; }
+  .eyebrow { color: var(--accent); text-transform: uppercase; letter-spacing: 0.22em; font-size: 13px; font-weight: 800; }
+  h1 { margin: 10px 0 0; font-size: 64px; line-height: 1.0; font-weight: 900; letter-spacing: -0.025em; }
+  h1 .accent { color: var(--accent); }
+  .sub { margin: 14px auto 0; color: var(--muted); font-size: 19px; max-width: 720px; line-height: 1.45; }
+
+  .cards {
+    margin-top: 44px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+  }
+  .card {
+    background: linear-gradient(180deg, #161622 0%, #1d1d2c 100%);
+    border: 1px solid var(--hairline);
+    border-radius: 18px;
+    padding: 18px 14px 18px;
+    position: relative;
+    overflow: hidden;
+    height: 480px;
+    display: flex; flex-direction: column;
+  }
+  .card::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(280px 160px at 50% -10%, rgba(167,139,250,0.18), transparent 70%);
+  }
+  .card .num {
+    position: absolute; top: 14px; right: 16px;
+    color: var(--muted); font-variant-numeric: tabular-nums; font-size: 12px; letter-spacing: 0.1em; font-weight: 700;
+  }
+  .avatar {
+    width: 96px; height: 96px; border-radius: 50%;
+    margin: 4px auto 12px;
+    background: radial-gradient(circle at 30% 30%, #c7b6ff, var(--accent-2) 70%);
+    display: flex; align-items: center; justify-content: center;
+    color: #0a0a10; font-weight: 900; font-size: 38px;
+    box-shadow: 0 0 0 6px rgba(167,139,250,0.10), 0 0 0 12px rgba(167,139,250,0.05);
+    position: relative;
+  }
+  .avatar.gold { background: radial-gradient(circle at 30% 30%, #ffe6a3, #f0a83a 70%); }
+  .name { text-align: center; font-size: 19px; font-weight: 900; letter-spacing: -0.005em; }
+  .role { text-align: center; color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; margin-top: 4px; }
+  .quote { color: var(--ink); font-size: 13px; line-height: 1.4; margin-top: 14px; padding: 12px;
+    background: rgba(255,255,255,0.03); border: 1px solid var(--hairline); border-radius: 12px; }
+  .quote .q { color: var(--accent); font-weight: 800; }
+  .axis { display: flex; align-items: center; justify-content: space-between;
+    margin-top: auto; font-size: 12px; color: var(--muted); padding-top: 12px; border-top: 1px dashed var(--hairline); }
+  .axis b { color: var(--ink); font-weight: 700; letter-spacing: 0.04em; }
+  .grade { font-weight: 900; color: var(--gold); }
+
+  .ribbon {
+    margin-top: 32px;
+    background: linear-gradient(90deg, rgba(167,139,250,0.10), rgba(124,92,255,0.06));
+    border: 1px solid rgba(167,139,250,0.30);
+    border-radius: 16px;
+    padding: 18px 22px;
+    display: flex; justify-content: space-between; align-items: center;
+    color: var(--ink);
+  }
+  .ribbon .left { font-size: 17px; font-weight: 700; }
+  .ribbon .left b { color: var(--accent); }
+  .ribbon .right { color: var(--muted); font-size: 14px; }
+
+  .footer {
+    margin-top: 16px;
+    display: flex; justify-content: space-between; align-items: center;
+    color: var(--muted); font-size: 14px;
+  }
+  .footer .cta {
+    background: var(--accent); color: #0a0a10;
+    padding: 10px 16px; border-radius: 999px; font-weight: 900; letter-spacing: 0.02em;
+  }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="header">
+      <div class="eyebrow">Auto Council · Runtime Guardrail</div>
+      <h1>Meet the <span class="accent">5 judges</span></h1>
+      <div class="sub">Before an agent gives me an answer I might actually act on, it passes a lightweight review across five axes. One pass = ship. One flag = back to the loop.</div>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <div class="num">01 / 05</div>
+        <div class="avatar">A</div>
+        <div class="name">Accuracy</div>
+        <div class="role">The fact-checker</div>
+        <div class="quote"><span class="q">"</span>Are the claims supported, current, and actually true?<span class="q">"</span></div>
+        <div class="axis"><span>grades</span><b>truth</b></div>
+      </div>
+      <div class="card">
+        <div class="num">02 / 05</div>
+        <div class="avatar">R</div>
+        <div class="name">Risk</div>
+        <div class="role">The skeptic</div>
+        <div class="quote"><span class="q">"</span>What's the worst case if the user acts on this?<span class="q">"</span></div>
+        <div class="axis"><span>grades</span><b>blast radius</b></div>
+      </div>
+      <div class="card">
+        <div class="num">03 / 05</div>
+        <div class="avatar">X</div>
+        <div class="name">Actionability</div>
+        <div class="role">The operator</div>
+        <div class="quote"><span class="q">"</span>Can the user actually do something with this — today?<span class="q">"</span></div>
+        <div class="axis"><span>grades</span><b>usefulness</b></div>
+      </div>
+      <div class="card">
+        <div class="num">04 / 05</div>
+        <div class="avatar">C</div>
+        <div class="name">Clarity</div>
+        <div class="role">The editor</div>
+        <div class="quote"><span class="q">"</span>Could a smart, busy person scan this in 10 seconds?<span class="q">"</span></div>
+        <div class="axis"><span>grades</span><b>signal</b></div>
+      </div>
+      <div class="card">
+        <div class="num">05 / 05</div>
+        <div class="avatar gold">F</div>
+        <div class="name">Fit</div>
+        <div class="role">The tiebreaker</div>
+        <div class="quote"><span class="q">"</span>Does this answer the actual question that was asked?<span class="q">"</span></div>
+        <div class="axis"><span>grades</span><b>alignment</b></div>
+      </div>
+    </div>
+
+    <div class="ribbon">
+      <div class="left">Accuracy <b>+</b> Risk <b>+</b> Actionability <b>+</b> Clarity <b>+</b> Fit</div>
+      <div class="right">= an answer worth acting on</div>
+    </div>
+
+    <div class="footer">
+      <div>Running evals on each judge inside <b style="color:#fff">OpenClaw</b>. Workflow drops next.</div>
+      <div class="cta">Subscribe →</div>
+    </div>
+  </div>
+</body>
+</html>

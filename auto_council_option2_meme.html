@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Auto Council — Before / After Meme</title>
+<style>
+  :root {
+    --ink: #0b0b10;
+    --muted: #585866;
+    --accent: #7c5cff;
+    --bad: #ef4444;
+    --good: #10b981;
+    --paper: #f6f4ee;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #000; color: var(--ink);
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+  .stage {
+    width: 1080px; height: 1080px; margin: 24px auto;
+    background: var(--paper);
+    border-radius: 28px; overflow: hidden; position: relative;
+    display: grid; grid-template-rows: auto 1fr auto;
+  }
+  .top {
+    padding: 36px 48px 0;
+    display: flex; align-items: flex-start; justify-content: space-between;
+  }
+  .top .eyebrow { text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); font-weight: 800; font-size: 13px; }
+  .top h1 {
+    margin: 8px 0 0;
+    font-size: 72px; line-height: 0.98; letter-spacing: -0.025em; font-weight: 900;
+    max-width: 800px;
+  }
+  .top h1 .strike { text-decoration: line-through; text-decoration-color: var(--bad); text-decoration-thickness: 6px; color: #2a2a36; }
+  .top .stamp {
+    transform: rotate(8deg);
+    border: 3px solid var(--accent);
+    color: var(--accent);
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-weight: 900; letter-spacing: 0.16em; font-size: 14px;
+    text-transform: uppercase;
+    background: rgba(124,92,255,0.08);
+  }
+
+  .panels {
+    margin: 28px 36px 0;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+  }
+  .panel {
+    border-radius: 22px;
+    padding: 26px 26px 22px;
+    position: relative;
+    min-height: 540px;
+  }
+  .panel.bad {
+    background: #ffe9e6;
+    border: 2px solid #ffb4a8;
+  }
+  .panel.good {
+    background: #e7f7ee;
+    border: 2px solid #9ee0b6;
+  }
+  .panel .label {
+    display: inline-block;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 12px; font-weight: 800;
+    padding: 6px 10px; border-radius: 999px;
+    background: #fff; color: var(--ink);
+  }
+  .panel.bad .label { color: #b3261e; }
+  .panel.good .label { color: #0f7a4a; }
+  .panel h2 {
+    margin: 12px 0 6px;
+    font-size: 30px; font-weight: 900; line-height: 1.05; letter-spacing: -0.01em;
+  }
+  .panel .sub { color: #5a5a64; font-size: 16px; margin-bottom: 18px; }
+  .bubble {
+    background: #fff;
+    border: 1.5px solid #e6e2d8;
+    border-radius: 18px;
+    padding: 16px 18px;
+    font-size: 17px; line-height: 1.4;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.03);
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .bubble .who { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.16em; color: var(--muted); margin-bottom: 4px; }
+  .bubble.user { background: #efeae0; }
+  .bubble.agent .body { color: #1a1a22; }
+  .panel.bad .bubble.agent { border-color: #ffb4a8; }
+  .panel.good .bubble.agent { border-color: #9ee0b6; }
+
+  .verdict {
+    display: flex; align-items: center; gap: 10px;
+    margin-top: 8px; font-weight: 800; font-size: 16px;
+  }
+  .verdict .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .panel.bad .verdict { color: #b3261e; }
+  .panel.bad .dot { background: var(--bad); }
+  .panel.good .verdict { color: #0f7a4a; }
+  .panel.good .dot { background: var(--good); }
+
+  .council-row {
+    display: flex; gap: 8px; margin-top: 10px;
+  }
+  .judge {
+    flex: 1;
+    background: #fff; border: 1.5px solid #d8e7df;
+    border-radius: 12px;
+    padding: 10px 6px; text-align: center;
+    font-size: 11px; font-weight: 700; color: #0f7a4a;
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .judge .check { font-size: 18px; line-height: 1; }
+
+  .footer {
+    margin: 0 36px 30px;
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--ink); color: #fff;
+    border-radius: 18px;
+    padding: 18px 24px;
+    font-size: 16px;
+  }
+  .footer b { color: #c7b6ff; }
+  .footer .cta { background: var(--accent); color: #fff; padding: 10px 16px; border-radius: 999px; font-weight: 800; }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="top">
+      <div>
+        <div class="eyebrow">A new pattern · Auto Council</div>
+        <h1>Your AI agent <span class="strike">vibes</span><br/>now passes a <span style="color:var(--accent)">5-judge review.</span></h1>
+      </div>
+      <div class="stamp">Runtime Guardrail</div>
+    </div>
+
+    <div class="panels">
+      <div class="panel bad">
+        <span class="label">Before · raw agent</span>
+        <h2>"Trust me bro."</h2>
+        <div class="sub">One model. One draft. Straight to your inbox.</div>
+
+        <div class="bubble user">
+          <div class="who">You</div>
+          <div class="body">Should I cancel the Friday launch?</div>
+        </div>
+        <div class="bubble agent">
+          <div class="who">Agent</div>
+          <div class="body">Yes, cancel it and email the team. I've drafted the message and will send it now.</div>
+        </div>
+
+        <div class="verdict"><span class="dot"></span> Confidently wrong. No second look.</div>
+      </div>
+
+      <div class="panel good">
+        <span class="label">After · Auto Council</span>
+        <h2>"Hold on. Let's review."</h2>
+        <div class="sub">5 judges grade the draft before it touches you.</div>
+
+        <div class="bubble agent">
+          <div class="who">Draft</div>
+          <div class="body">Cancel and email the team.</div>
+        </div>
+        <div class="council-row">
+          <div class="judge"><div class="check">✓</div>Accuracy</div>
+          <div class="judge"><div class="check">✓</div>Risk</div>
+          <div class="judge"><div class="check">✓</div>Actionable</div>
+          <div class="judge"><div class="check">✓</div>Clarity</div>
+          <div class="judge"><div class="check">✓</div>Fit</div>
+        </div>
+        <div class="bubble agent" style="margin-top:14px;">
+          <div class="who">Reviewed answer</div>
+          <div class="body">Risk flagged: don't auto-send. Here are 2 options + the data behind each — you decide.</div>
+        </div>
+
+        <div class="verdict"><span class="dot"></span> Earned your trust. Then earned your action.</div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div>Building it inside <b>OpenClaw</b> · evals running on each judge now.</div>
+      <div class="cta">Subscribe for the workflow →</div>
+    </div>
+  </div>
+</body>
+</html>
