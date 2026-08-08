@@ -1,0 +1,9 @@
+{
+  "fixed_dollar_amount": 100.0,
+  "buy_threshold": 0.45,
+  "sell_threshold": -0.45,
+  "alert_cooldown_hours": 12,
+  "short_term_tax_rate": 0.32,
+  "long_term_tax_rate": 0.15,
+  "execution_mode": "alert_only"
+}

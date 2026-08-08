@@ -1,0 +1,35 @@
+name: SOL Trading Workflow
+
+on:
+  schedule:
+    # Every 4 hours — appropriate cadence for swing trading
+    - cron: '0 */4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run SOL trading analysis
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python -m sol_trader.main
+
+      - name: Commit updated state and tax lots
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add sol_state.json sol_tax_lots.json
+          git diff --staged --quiet || git commit -m "Update SOL trader state [skip ci]"
+          git push
